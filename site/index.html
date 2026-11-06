@@ -194,6 +194,8 @@ input, select, textarea {
 }
 textarea { min-height: 6.5em; resize: vertical; }
 #form-status { font-weight: 600; min-height: 1.5em; }
+.hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+form button[disabled] { opacity: .6; cursor: progress; }
 
 footer { background: var(--band); color: var(--band-fg); }
 footer .wrap { display: flex; justify-content: space-between; gap: 12px 32px; flex-wrap: wrap; padding-block: 26px; font-size: .92rem; }
@@ -381,7 +383,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 12px 32px; fl
       <h2><span class="es">Ve Viatica con tu proceso de viajes</span><span class="en">See Viatica with your travel process</span></h2>
       <p class="lede"><span class="es">Cuéntanos cómo manejan hoy los anticipos y las comprobaciones. Te contactamos para agendar una demostración.</span><span class="en">Tell us how you handle advances and expense reports today. We will contact you to schedule a demo.</span></p>
     </div>
-    <form id="demo-form" data-endpoint="">
+    <form id="demo-form" data-endpoint="/contact.php">
       <div class="field"><label for="f-name"><span class="es">Nombre</span><span class="en">Name</span></label><input id="f-name" name="name" required autocomplete="name"></div>
       <div class="field"><label for="f-company"><span class="es">Empresa</span><span class="en">Company</span></label><input id="f-company" name="company" required autocomplete="organization"></div>
       <div class="field"><label for="f-email"><span class="es">Correo de trabajo</span><span class="en">Work email</span></label><input id="f-email" name="email" type="email" required autocomplete="email"></div>
@@ -390,6 +392,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 12px 32px; fl
           <option value="1-20">1–20</option><option value="21-100">21–100</option><option value="101-500">101–500</option>
           <option value="500+" data-es="Más de 500" data-en="More than 500">Más de 500</option>
         </select></div>
+      <div class="hp" aria-hidden="true"><label for="f-website">Website</label><input id="f-website" name="website" tabindex="-1" autocomplete="off"></div>
       <div class="field full"><label for="f-msg"><span class="es">¿Cómo lo manejan hoy?</span><span class="en">How do you handle it today?</span></label><textarea id="f-msg" name="message"></textarea></div>
       <button class="btn" type="submit"><span class="es">Solicitar demo</span><span class="en">Request a demo</span></button>
       <p id="form-status" role="status"></p>
@@ -428,8 +431,8 @@ footer .wrap { display: flex; justify-content: space-between; gap: 12px 32px; fl
   document.getElementById('lang-en').addEventListener('click', function () { setLang('en'); });
 
   var msgs = {
-    es: { preview: 'Vista previa: este formulario todavía no envía mensajes.', sent: 'Solicitud enviada. Te contactaremos pronto.', fail: 'No se pudo enviar la solicitud. Inténtalo de nuevo en unos minutos.' },
-    en: { preview: 'Preview: this form does not send messages yet.', sent: 'Request sent. We will contact you soon.', fail: 'The request could not be sent. Try again in a few minutes.' }
+    es: { preview: 'Vista previa: este formulario todavía no envía mensajes.', sending: 'Enviando…', sent: 'Solicitud enviada. Te contactaremos pronto.', fail: 'No se pudo enviar la solicitud. Inténtalo de nuevo en unos minutos o escríbenos a info@viatica.pro.', rate: 'Recibimos varias solicitudes desde tu conexión. Inténtalo de nuevo en una hora o escríbenos a info@viatica.pro.', invalid: 'Revisa tu nombre, empresa y correo de trabajo.' },
+    en: { preview: 'Preview: this form does not send messages yet.', sending: 'Sending…', sent: 'Request sent. We will contact you soon.', fail: 'The request could not be sent. Try again in a few minutes or write to info@viatica.pro.', rate: 'We received several requests from your connection. Try again in an hour or write to info@viatica.pro.', invalid: 'Check your name, company and work email.' }
   };
   var form = document.getElementById('demo-form');
   form.addEventListener('submit', function (ev) {
@@ -437,9 +440,20 @@ footer .wrap { display: flex; justify-content: space-between; gap: 12px 32px; fl
     var m = msgs[root.classList.contains('l-en') ? 'en' : 'es'];
     var endpoint = form.getAttribute('data-endpoint');
     if (!endpoint) { status.textContent = m.preview; return; }
-    fetch(endpoint, { method: 'POST', body: new FormData(form) })
-      .then(function (r) { if (!r.ok) throw new Error(); status.textContent = m.sent; form.reset(); })
-      .catch(function () { status.textContent = m.fail; });
+    var btn = form.querySelector('button[type=submit]');
+    var data = new FormData(form);
+    data.append('lang', root.classList.contains('l-en') ? 'en' : 'es');
+    btn.disabled = true;
+    status.textContent = m.sending;
+    fetch(endpoint, { method: 'POST', body: data })
+      .then(function (r) {
+        if (r.status === 429) { status.textContent = m.rate; return; }
+        if (r.status === 422) { status.textContent = m.invalid; return; }
+        if (!r.ok) throw new Error();
+        status.textContent = m.sent; form.reset();
+      })
+      .catch(function () { status.textContent = m.fail; })
+      .then(function () { btn.disabled = false; });
   });
 
   /* Guilloché: rosettes of fine curves, as on security paper. */
