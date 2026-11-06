@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Viatica</title>
+<meta name="description" content="Viatica: órdenes de viaje, anticipos, gastos, CFDI y viáticos en un solo lugar.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap">
+<style>
+/* Layout concept: security paper. A filled-in trip report sits on a guilloché field, as on a cheque, and its figures carry through the page. */
+:root {
+  --paper: #EEF4F2;
+  --sheet: #FFFFFF;
+  --ink: #12343B;
+  --muted: #47636A;
+  --rule: #C4D5D3;
+  --band: #0F4C55;
+  --band-fg: #EAF5F3;
+  --band-muted: #B5D2D1;
+  --band-rule: #2F6A72;
+  --stamp: #B3125F;
+  --ok: #0B7050;
+  --pending: #8F5200;
+  --guilloche: #6FA3A3;
+  --font: "Archivo", "Helvetica Neue", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #102C33; --sheet: #17393F; --ink: #E7F2F0; --muted: #A9C2C3; --rule: #31575D;
+    --band: #0B5F6B; --band-fg: #F2FAF9; --band-muted: #C4DEDD; --band-rule: #3A8089;
+    --stamp: #FF86B6; --ok: #5AD8A8; --pending: #F4BC63; --guilloche: #3F7479;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #102C33; --sheet: #17393F; --ink: #E7F2F0; --muted: #A9C2C3; --rule: #31575D;
+  --band: #0B5F6B; --band-fg: #F2FAF9; --band-muted: #C4DEDD; --band-rule: #3A8089;
+  --stamp: #FF86B6; --ok: #5AD8A8; --pending: #F4BC63; --guilloche: #3F7479;
+  color-scheme: dark;
+}
+
+:root:not(.l-en) .en, :root.l-en .es { display: none !important; }
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--paper); color: var(--ink);
+  font-family: var(--font); font-size: 17px; line-height: 1.55;
+  font-variant-numeric: tabular-nums; overflow-x: hidden;
+}
+.wrap {
+  max-width: 1160px; margin-inline: auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+h1, h2, h3, p, ul, ol, dl, dd, figure { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+h1, h2 { font-stretch: 125%; font-weight: 800; line-height: 1.06; letter-spacing: -.015em; text-wrap: balance; }
+h1 { font-size: clamp(2.3rem, 5.4vw, 4rem); }
+h2 { font-size: clamp(1.75rem, 3.4vw, 2.6rem); }
+h3 { font-size: 1.12rem; font-weight: 700; line-height: 1.25; }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--stamp); outline-offset: 2px; }
+.lede { font-size: 1.2rem; max-width: 34em; color: var(--muted); text-wrap: pretty; }
+.note { font-size: .88rem; color: var(--muted); }
+
+.btn {
+  display: inline-block; background: var(--stamp); color: var(--paper);
+  font: inherit; font-weight: 700; text-decoration: none;
+  border: 0; border-radius: 3px; padding: .72em 1.2em; cursor: pointer;
+}
+
+/* Header */
+.top .wrap { display: flex; align-items: center; gap: 28px; padding-block: 18px; flex-wrap: wrap; }
+.mark { font-stretch: 125%; font-weight: 800; font-size: 1.45rem; letter-spacing: -.02em; text-decoration: none; margin-right: auto; }
+.top nav { display: flex; gap: 24px; font-size: .95rem; }
+.top nav a { text-decoration: none; }
+.top nav a:hover { text-decoration: underline; }
+.lang { display: inline-flex; border: 1px solid var(--rule); border-radius: 3px; }
+.lang button { font: inherit; font-size: .85rem; font-weight: 600; background: none; color: var(--muted); border: 0; padding: .3em .7em; cursor: pointer; }
+.lang button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+
+/* Hero */
+.hero { position: relative; overflow: hidden; }
+.hero .wrap { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 56px; align-items: center; padding-block: 44px 76px; }
+.hero-copy { display: grid; gap: 24px; justify-items: start; min-width: 0; }
+#guilloche { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+.report {
+  position: relative; background: var(--sheet); border: 1px solid var(--rule);
+  border-radius: 2px; padding: 26px 28px 28px; min-width: 0;
+  box-shadow: 10px 10px 0 color-mix(in srgb, var(--band) 16%, transparent);
+}
+.report header { display: flex; justify-content: space-between; gap: 16px; align-items: baseline; flex-wrap: wrap; border-bottom: 2px solid var(--ink); padding-bottom: 10px; }
+.report header b { font-stretch: 125%; font-size: 1.05rem; }
+.report .meta { font-size: .86rem; color: var(--muted); padding-block: 10px 6px; }
+.lines { display: grid; }
+.lines > div { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 16px; padding-block: 7px; border-bottom: 1px solid var(--rule); font-size: .96rem; }
+.lines dd { text-align: right; }
+.lines .tag { grid-column: 1 / -1; font-size: .8rem; font-weight: 600; }
+.ok { color: var(--ok); }
+.pend { color: var(--pending); }
+.lines .sub { font-size: .84rem; color: var(--muted); }
+.lines .advance { font-weight: 700; }
+.balance { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: baseline; padding-top: 14px; }
+.balance dt { font-weight: 700; }
+.balance dd { font-stretch: 125%; font-weight: 800; font-size: 1.7rem; }
+.stamp {
+  position: absolute; right: 31%; top: 104px; width: 112px; height: 112px;
+  color: var(--stamp); transform: rotate(-13deg); opacity: .86;
+  animation: stamp .5s cubic-bezier(.2,1.5,.4,1) .35s backwards; pointer-events: none;
+}
+.stamp text { font-family: var(--font); font-stretch: 125%; font-weight: 800; fill: currentColor; }
+@keyframes stamp { from { transform: rotate(-13deg) scale(1.5); } }
+@media (prefers-reduced-motion: reduce) { .stamp { animation: none; } html { scroll-behavior: auto; } }
+
+/* Sections */
+.sec { padding-block: 84px; }
+.sec-head { display: grid; gap: 16px; margin-bottom: 44px; max-width: 46rem; }
+
+/* Fiscal band */
+.band { background: var(--band); color: var(--band-fg); }
+.band .lede, .band .note { color: var(--band-muted); }
+.band .fiscal { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 64px; }
+.steps { display: grid; gap: 0; counter-reset: s; }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 2.6rem minmax(0, 1fr); gap: 4px 14px; padding-block: 18px; border-top: 1px solid var(--band-rule); }
+.steps li::before { content: counter(s); grid-row: span 2; font-stretch: 125%; font-weight: 800; font-size: 1.7rem; line-height: 1.1; }
+.steps p { color: var(--band-muted); }
+.checks { display: grid; gap: 14px; align-content: start; }
+.checks h3 { font-size: 1.3rem; }
+.checks li { padding-block: 10px; border-top: 1px solid var(--band-rule); }
+.checks strong { display: block; }
+
+/* Allowance */
+.split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 64px; align-items: start; }
+.split .sec-head { margin-bottom: 0; }
+.days { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--rule); background: var(--sheet); }
+.days div { padding: 16px; display: grid; gap: 2px; }
+.days div + div { border-left: 1px solid var(--rule); }
+.days b { font-stretch: 125%; font-size: 1.5rem; }
+.days span { font-size: .88rem; color: var(--muted); }
+.sum { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-block: 14px; border-bottom: 2px solid var(--ink); font-weight: 700; }
+.bullets { display: grid; gap: 10px; margin-top: 18px; }
+.bullets li { padding-left: 1.1em; position: relative; }
+.bullets li::before { content: ""; position: absolute; left: 0; top: .62em; width: .5em; height: .5em; background: var(--stamp); }
+
+/* Roles */
+.roles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px; }
+.roles > div { display: grid; gap: 8px; align-content: start; border-top: 2px solid var(--ink); padding-top: 14px; min-width: 0; }
+.roles p { color: var(--muted); font-size: .98rem; }
+
+/* Accounting table */
+.tbl { overflow-x: auto; background: var(--sheet); border: 1px solid var(--rule); }
+table { width: 100%; border-collapse: collapse; min-width: 520px; font-size: .95rem; }
+caption { text-align: left; padding: 14px 16px 4px; font-size: .88rem; color: var(--muted); }
+th, td { padding: 10px 16px; text-align: left; border-bottom: 1px solid var(--rule); }
+th { font-weight: 700; }
+.num { text-align: right; }
+tfoot td { border-bottom: 0; font-weight: 800; }
+
+/* Brand */
+.own { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; }
+.own > div { display: grid; gap: 8px; align-content: start; min-width: 0; }
+.own p { color: var(--muted); }
+.maker { margin-top: 48px; padding-top: 22px; border-top: 1px solid var(--rule); max-width: 46rem; }
+
+/* Contact */
+.contact { background: var(--sheet); border-top: 1px solid var(--rule); }
+.contact .split { align-items: start; }
+form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.field { display: grid; gap: 5px; min-width: 0; }
+.field.full, form .btn, #form-status { grid-column: 1 / -1; }
+form .btn { justify-self: start; }
+label { font-weight: 600; font-size: .94rem; }
+input, select, textarea {
+  font: inherit; color: var(--ink); background: var(--paper);
+  border: 1px solid var(--muted); border-radius: 3px; padding: .55em .65em; width: 100%;
+}
+textarea { min-height: 6.5em; resize: vertical; }
+#form-status { font-weight: 600; min-height: 1.5em; }
+
+footer { background: var(--band); color: var(--band-fg); }
+footer .wrap { display: flex; justify-content: space-between; gap: 12px 32px; flex-wrap: wrap; padding-block: 26px; font-size: .92rem; }
+
+@media (max-width: 900px) {
+  .hero .wrap, .band .fiscal, .split { grid-template-columns: minmax(0, 1fr); gap: 40px; }
+  .hero .wrap { padding-block: 28px 56px; }
+  .roles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .own { grid-template-columns: minmax(0, 1fr); }
+  .sec { padding-block: 60px; }
+}
+@media (max-width: 560px) {
+  .top nav { display: none; }
+  .roles, form { grid-template-columns: minmax(0, 1fr); }
+  .report { padding: 20px 16px; box-shadow: 6px 6px 0 color-mix(in srgb, var(--band) 16%, transparent); }
+  .stamp { width: 84px; height: 84px; top: 112px; right: 30%; }
+}
+</style>
+
+</head>
+<body>
+<div class="top">
+  <div class="wrap">
+    <a class="mark" href="#inicio">Viatica</a>
+    <nav>
+      <a href="#fiscal"><span class="es">CFDI</span><span class="en">CFDI</span></a>
+      <a href="#viaticos"><span class="es">Viáticos</span><span class="en">Allowances</span></a>
+      <a href="#contabilidad"><span class="es">Contabilidad</span><span class="en">Accounting</span></a>
+    </nav>
+    <div class="lang" role="group" aria-label="Idioma / Language">
+      <button type="button" id="lang-es" aria-pressed="true">ES</button>
+      <button type="button" id="lang-en" aria-pressed="false">EN</button>
+    </div>
+    <a class="btn" href="#contacto"><span class="es">Solicitar demo</span><span class="en">Request a demo</span></a>
+  </div>
+</div>
+
+<main>
+<section class="hero" id="inicio">
+  <canvas id="guilloche" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <div class="hero-copy">
+      <h1><span class="es">Cada viaje de trabajo, cuadrado hasta el último peso.</span><span class="en">Every business trip, reconciled to the last cent.</span></h1>
+      <p class="lede"><span class="es">Viatica reúne la orden de viaje, el anticipo, los gastos y los CFDI en un solo lugar, y cierra cada viaje con su saldo.</span><span class="en">Viatica keeps the travel order, the advance, the expenses and the CFDI invoices in one place, then closes each trip with its final balance.</span></p>
+      <a class="btn" href="#contacto"><span class="es">Solicitar demo</span><span class="en">Request a demo</span></a>
+    </div>
+
+    <figure class="report">
+      <header>
+        <b><span class="es">Reporte de viaje</span><span class="en">Travel report</span></b>
+        <span class="note"><span class="es">Datos de ejemplo</span><span class="en">Sample data</span></span>
+      </header>
+      <p class="meta"><span class="es">Orden OV-0142, Monterrey a Ciudad de México, 3 días</span><span class="en">Order OV-0142, Monterrey to Mexico City, 3 days</span></p>
+      <dl class="lines">
+        <div class="advance"><dt><span class="es">Anticipo</span><span class="en">Advance</span></dt><dd>$12,000.00</dd></div>
+        <div><dt><span class="es">Boletos de avión</span><span class="en">Airfare</span></dt><dd>−$3,650.00</dd><span class="tag ok"><span class="es">CFDI vigente</span><span class="en">CFDI valid</span></span></div>
+        <div><dt><span class="es">Hospedaje</span><span class="en">Lodging</span></dt><dd>−$4,280.00</dd><span class="tag ok"><span class="es">CFDI vigente</span><span class="en">CFDI valid</span></span></div>
+        <div><dt><span class="es">Taxis</span><span class="en">Taxis</span></dt><dd>−$640.00</dd><span class="tag pend"><span class="es">Ticket, CFDI pendiente</span><span class="en">Ticket, CFDI pending</span></span></div>
+        <div><dt><span class="es">Viáticos</span><span class="en">Daily allowance</span></dt><dd>−$1,800.00</dd><span class="tag sub"><span class="es">$1,240.00 con comprobante, $560.00 gravable</span><span class="en">$1,240.00 receipted, $560.00 taxable</span></span></div>
+      </dl>
+      <dl class="balance">
+        <dt><span class="es">Saldo por devolver (MXN)</span><span class="en">Balance to return (MXN)</span></dt>
+        <dd>$1,630.00</dd>
+      </dl>
+      <svg class="stamp" viewBox="0 0 120 120" aria-hidden="true">
+        <circle cx="60" cy="60" r="56" fill="none" stroke="currentColor" stroke-width="3.5"/>
+        <circle cx="60" cy="60" r="49" fill="none" stroke="currentColor" stroke-width="1.2"/>
+        <text x="60" y="55" text-anchor="middle" font-size="19">CFDI</text>
+        <text x="60" y="76" text-anchor="middle" font-size="13.5">VIGENTE</text>
+      </svg>
+    </figure>
+  </div>
+</section>
+
+<section class="band sec" id="fiscal">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2><span class="es">Del ticket al CFDI sin perder ninguno</span><span class="en">From ticket to CFDI, with none left behind</span></h2>
+      <p class="lede"><span class="es">En México, el viajero recibe un ticket y después tiene que pedir la factura en el portal de cada comercio. Viatica sigue ese trámite hasta el final.</span><span class="en">In Mexico, travellers get a ticket at the counter and must request the invoice later on each vendor's portal. Viatica tracks that process through to the end.</span></p>
+    </div>
+    <div class="fiscal">
+      <ol class="steps">
+        <li><h3><span class="es">Captura el gasto</span><span class="en">Capture the expense</span></h3><p><span class="es">El viajero registra el gasto en el celular y toma foto del comprobante.</span><span class="en">The traveller logs the expense on their phone and photographs the receipt.</span></p></li>
+        <li><h3><span class="es">Pide la factura</span><span class="en">Request the invoice</span></h3><p><span class="es">Los datos fiscales de la empresa están a la mano en la tarjeta fiscal de la app.</span><span class="en">The company's tax details are on hand in the app's fiscal card.</span></p></li>
+        <li><h3><span class="es">Adjunta PDF y XML</span><span class="en">Attach the PDF and XML</span></h3><p><span class="es">Cuando llegan del comercio, se ligan al gasto original.</span><span class="en">When they arrive from the vendor, they are linked to the original expense.</span></p></li>
+        <li><h3><span class="es">Valida el CFDI</span><span class="en">Validate the CFDI</span></h3><p><span class="es">Viatica revisa el XML. Lo que falte aparece en la lista de CFDI pendientes.</span><span class="en">Viatica checks the XML. Anything missing shows up on the pending CFDI list.</span></p></li>
+      </ol>
+      <div class="checks">
+        <h3><span class="es">Qué revisa en cada CFDI 4.0</span><span class="en">What it checks on each CFDI 4.0</span></h3>
+        <ul>
+          <li><strong><span class="es">Sello</span><span class="en">Seal</span></strong><span class="es">Detecta si el XML fue alterado.</span><span class="en">Detects whether the XML was altered.</span></li>
+          <li><strong><span class="es">Certificado</span><span class="en">Certificate</span></strong><span class="es">Comprueba la identidad del emisor.</span><span class="en">Confirms the issuer's identity.</span></li>
+          <li><strong><span class="es">Folio duplicado</span><span class="en">Duplicate folio</span></strong><span class="es">Evita que una factura se presente dos veces.</span><span class="en">Stops one invoice being submitted twice.</span></li>
+          <li><strong><span class="es">RFC receptor</span><span class="en">Recipient RFC</span></strong><span class="es">Confirma que se facturó a tu empresa.</span><span class="en">Confirms it was invoiced to your company.</span></li>
+          <li><strong><span class="es">Estatus ante el SAT</span><span class="en">SAT status</span></strong><span class="es">Consulta si el comprobante sigue vigente.</span><span class="en">Looks up whether the invoice is still valid.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="viaticos">
+  <div class="wrap split">
+    <div class="sec-head">
+      <h2><span class="es">Viáticos calculados con tu política</span><span class="en">Allowances calculated from your policy</span></h2>
+      <p class="lede"><span class="es">Defines una tarifa diaria por país y moneda. Viatica la aplica a cada viaje y separa lo comprobado de lo gravable.</span><span class="en">You set a daily rate per country and currency. Viatica applies it to each trip and separates the receipted amount from the taxable amount.</span></p>
+      <ul class="bullets">
+        <li><span class="es">Media tarifa en los días de salida y de regreso.</span><span class="en">Half rate on departure and return days.</span></li>
+        <li><span class="es">Tarifas sin conversión: un viaje en pesos usa la tarifa en pesos, y uno en dólares, la de dólares.</span><span class="en">No rate conversion: a peso trip uses the peso rate and a dollar trip uses the dollar rate.</span></li>
+        <li><span class="es">Cálculo automático que administración puede ajustar.</span><span class="en">Automatic calculation that administration can adjust.</span></li>
+        <li><span class="es">Reporte de nómina con el viático gravable por empleado.</span><span class="en">Payroll report of taxable allowance per employee.</span></li>
+      </ul>
+    </div>
+    <div>
+      <div class="days">
+        <div><b>½</b><span><span class="es">Lunes, salida</span><span class="en">Monday, departure</span></span></div>
+        <div><b>1</b><span><span class="es">Martes</span><span class="en">Tuesday</span></span></div>
+        <div><b>½</b><span><span class="es">Miércoles, regreso</span><span class="en">Wednesday, return</span></span></div>
+      </div>
+      <p class="sum"><span><span class="es">2 días de tarifa × $900.00</span><span class="en">2 rate days × $900.00</span></span><span>$1,800.00 MXN</span></p>
+      <p class="note" style="margin-top:10px"><span class="es">Tarifa de ejemplo. Cada empresa captura las suyas.</span><span class="en">Sample rate. Each company enters its own.</span></p>
+    </div>
+  </div>
+</section>
+
+<section class="sec" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2><span class="es">Una sola herramienta para quienes viajan y quienes cierran</span><span class="en">One tool for the people who travel and the people who close the books</span></h2>
+    </div>
+    <div class="roles">
+      <div><h3><span class="es">Viajeros</span><span class="en">Travellers</span></h3><p><span class="es">Consultan su orden, registran gastos en la app para iOS y Android o en el navegador, y reciben avisos antes de la fecha límite.</span><span class="en">See their order, log expenses in the iOS and Android app or the browser, and get reminders before the deadline.</span></p></div>
+      <div><h3><span class="es">Gerentes</span><span class="en">Managers</span></h3><p><span class="es">Aprueban las órdenes de su equipo y pueden deshacer su aprobación mientras el viaje no haya comenzado.</span><span class="en">Approve their team's orders and can undo an approval until the trip has started.</span></p></div>
+      <div><h3><span class="es">Administración</span><span class="en">Administration</span></h3><p><span class="es">Crea órdenes, aplica reglas a los anticipos y define el plazo de entrega. Los reportes vencidos se cierran solos, y administración puede reabrirlos.</span><span class="en">Creates orders, applies advance rules and sets the deadline. Overdue reports close automatically, and administration can reopen them.</span></p></div>
+      <div><h3><span class="es">Contabilidad</span><span class="en">Accounting</span></h3><p><span class="es">Revisa el reporte de IVA, la conciliación de anticipos y los gastos por centro de costo, proyecto y empleado.</span><span class="en">Reviews the VAT report, advance reconciliation, and spend by cost centre, project and employee.</span></p></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="contabilidad" style="padding-top:0">
+  <div class="wrap split">
+    <div class="sec-head">
+      <h2><span class="es">Datos listos para tu ERP</span><span class="en">Data ready for your ERP</span></h2>
+      <p class="lede"><span class="es">Tú defines los tipos de gasto, con su cuenta contable y si son deducibles. Exportas a Excel o CSV sin volver a clasificar.</span><span class="en">You define the expense types, with their GL account and whether they are deductible. Export to Excel or CSV without reclassifying anything.</span></p>
+      <p class="note"><span class="es">El tipo de cambio se actualiza a diario desde fuentes como Banxico y el Banco Central Europeo.</span><span class="en">Exchange rates update daily from sources such as Banxico and the European Central Bank.</span></p>
+    </div>
+    <div class="tbl">
+      <table>
+        <caption><span class="es">Ejemplo de exportación, orden OV-0142</span><span class="en">Sample export, order OV-0142</span></caption>
+        <thead><tr>
+          <th><span class="es">Tipo de gasto</span><span class="en">Expense type</span></th>
+          <th><span class="es">Cuenta</span><span class="en">GL account</span></th>
+          <th><span class="es">Centro de costo</span><span class="en">Cost centre</span></th>
+          <th class="num"><span class="es">Importe</span><span class="en">Amount</span></th>
+        </tr></thead>
+        <tbody>
+          <tr><td><span class="es">Boletos de avión</span><span class="en">Airfare</span></td><td>6010-01</td><td><span class="es">Ventas</span><span class="en">Sales</span></td><td class="num">$3,650.00</td></tr>
+          <tr><td><span class="es">Hospedaje</span><span class="en">Lodging</span></td><td>6010-02</td><td><span class="es">Ventas</span><span class="en">Sales</span></td><td class="num">$4,280.00</td></tr>
+          <tr><td><span class="es">Taxis</span><span class="en">Taxis</span></td><td>6010-03</td><td><span class="es">Ventas</span><span class="en">Sales</span></td><td class="num">$640.00</td></tr>
+          <tr><td><span class="es">Viáticos</span><span class="en">Daily allowance</span></td><td>6010-04</td><td><span class="es">Ventas</span><span class="en">Sales</span></td><td class="num">$1,800.00</td></tr>
+        </tbody>
+        <tfoot><tr><td colspan="3">Total</td><td class="num">$10,370.00</td></tr></tfoot>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="sec" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2><span class="es">Con tu marca, en tu propio ambiente</span><span class="en">Your brand, your own environment</span></h2>
+    </div>
+    <div class="own">
+      <div><h3><span class="es">Tu nombre y tu logo</span><span class="en">Your name and logo</span></h3><p><span class="es">Tu equipo ve la identidad de tu empresa en la plataforma.</span><span class="en">Your team sees your company's identity on the platform.</span></p></div>
+      <div><h3><span class="es">Una instalación por cliente</span><span class="en">One deployment per customer</span></h3><p><span class="es">Tus datos no comparten ambiente con los de otras empresas.</span><span class="en">Your data does not share an environment with other companies.</span></p></div>
+      <div><h3><span class="es">Español e inglés</span><span class="en">Spanish and English</span></h3><p><span class="es">Cada persona trabaja en su idioma, con inicio de sesión seguro y opción de entrar con Google.</span><span class="en">Each person works in their language, with secure sign-in and a Google option.</span></p></div>
+    </div>
+    <p class="maker"><span class="es">Viatica es un producto de TXM Global, empresa de tecnología fundada en Saltillo en 2002, con oficinas en Saltillo y Austin. Lo usamos para los viajes de nuestro propio equipo.</span><span class="en">Viatica is built by TXM Global, a technology company founded in Saltillo in 2002, with offices in Saltillo and Austin. We use it for our own team's travel.</span></p>
+  </div>
+</section>
+
+<section class="contact sec" id="contacto">
+  <div class="wrap split">
+    <div class="sec-head">
+      <h2><span class="es">Ve Viatica con tu proceso de viajes</span><span class="en">See Viatica with your travel process</span></h2>
+      <p class="lede"><span class="es">Cuéntanos cómo manejan hoy los anticipos y las comprobaciones. Te contactamos para agendar una demostración.</span><span class="en">Tell us how you handle advances and expense reports today. We will contact you to schedule a demo.</span></p>
+    </div>
+    <form id="demo-form" data-endpoint="">
+      <div class="field"><label for="f-name"><span class="es">Nombre</span><span class="en">Name</span></label><input id="f-name" name="name" required autocomplete="name"></div>
+      <div class="field"><label for="f-company"><span class="es">Empresa</span><span class="en">Company</span></label><input id="f-company" name="company" required autocomplete="organization"></div>
+      <div class="field"><label for="f-email"><span class="es">Correo de trabajo</span><span class="en">Work email</span></label><input id="f-email" name="email" type="email" required autocomplete="email"></div>
+      <div class="field"><label for="f-size"><span class="es">Personas que viajan</span><span class="en">People who travel</span></label>
+        <select id="f-size" name="travellers">
+          <option value="1-20">1–20</option><option value="21-100">21–100</option><option value="101-500">101–500</option>
+          <option value="500+" data-es="Más de 500" data-en="More than 500">Más de 500</option>
+        </select></div>
+      <div class="field full"><label for="f-msg"><span class="es">¿Cómo lo manejan hoy?</span><span class="en">How do you handle it today?</span></label><textarea id="f-msg" name="message"></textarea></div>
+      <button class="btn" type="submit"><span class="es">Solicitar demo</span><span class="en">Request a demo</span></button>
+      <p id="form-status" role="status"></p>
+    </form>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Viatica</span>
+    <span><span class="es">Un producto de TXM Global. Saltillo y Austin.</span><span class="en">A TXM Global product. Saltillo and Austin.</span></span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  var titles = { es: 'Viatica', en: 'Viatica' };
+  var status = document.getElementById('form-status');
+
+  function setLang(lang) {
+    root.classList.toggle('l-en', lang === 'en');
+    root.lang = lang;
+    document.title = titles[lang];
+    document.getElementById('lang-es').setAttribute('aria-pressed', lang === 'es');
+    document.getElementById('lang-en').setAttribute('aria-pressed', lang === 'en');
+    document.querySelectorAll('[data-es]').forEach(function (el) { el.textContent = el.getAttribute('data-' + lang); });
+    status.textContent = '';
+    try { localStorage.setItem('viatica-lang', lang); } catch (e) {}
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('viatica-lang'); } catch (e) {}
+  setLang(saved === 'en' ? 'en' : 'es');
+  document.getElementById('lang-es').addEventListener('click', function () { setLang('es'); });
+  document.getElementById('lang-en').addEventListener('click', function () { setLang('en'); });
+
+  var msgs = {
+    es: { preview: 'Vista previa: este formulario todavía no envía mensajes.', sent: 'Solicitud enviada. Te contactaremos pronto.', fail: 'No se pudo enviar la solicitud. Inténtalo de nuevo en unos minutos.' },
+    en: { preview: 'Preview: this form does not send messages yet.', sent: 'Request sent. We will contact you soon.', fail: 'The request could not be sent. Try again in a few minutes.' }
+  };
+  var form = document.getElementById('demo-form');
+  form.addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    var m = msgs[root.classList.contains('l-en') ? 'en' : 'es'];
+    var endpoint = form.getAttribute('data-endpoint');
+    if (!endpoint) { status.textContent = m.preview; return; }
+    fetch(endpoint, { method: 'POST', body: new FormData(form) })
+      .then(function (r) { if (!r.ok) throw new Error(); status.textContent = m.sent; form.reset(); })
+      .catch(function () { status.textContent = m.fail; });
+  });
+
+  /* Guilloché: rosettes of fine curves, as on security paper. */
+  var canvas = document.getElementById('guilloche');
+  function draw() {
+    var box = canvas.getBoundingClientRect();
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = box.width * dpr;
+    canvas.height = box.height * dpr;
+    var c = canvas.getContext('2d');
+    c.scale(dpr, dpr);
+    c.strokeStyle = getComputedStyle(root).getPropertyValue('--guilloche').trim();
+    c.lineWidth = 0.5;
+    c.globalAlpha = 0.55;
+    var narrow = box.width < 900;
+    var cx = narrow ? box.width * 0.5 : box.width * 0.73;
+    var cy = narrow ? box.height * 0.72 : box.height * 0.5;
+    var R = Math.max(box.width, box.height) * (narrow ? 0.62 : 0.5);
+    for (var k = 0; k < 46; k++) {
+      var base = R * (0.42 + k * 0.012), phase = k * Math.PI / 23;
+      c.beginPath();
+      for (var t = 0; t <= Math.PI * 2 + 0.01; t += 0.008) {
+        var r = base + R * 0.11 * Math.sin(12 * t + phase) + R * 0.05 * Math.sin(5 * t - phase);
+        var x = cx + r * Math.cos(t), y = cy + r * Math.sin(t);
+        if (t === 0) c.moveTo(x, y); else c.lineTo(x, y);
+      }
+      c.stroke();
+    }
+  }
+  draw();
+  var timer;
+  window.addEventListener('resize', function () { clearTimeout(timer); timer = setTimeout(draw, 150); });
+  if (window.matchMedia) window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', draw);
+  new MutationObserver(draw).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+})();
+</script>
+</body>
+</html>
