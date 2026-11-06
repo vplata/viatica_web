@@ -192,6 +192,15 @@ tfoot td { border-bottom: 0; font-weight: 800; }
 .own p { color: var(--muted); }
 .maker { margin-top: 48px; padding-top: 22px; border-top: 1px solid var(--rule); max-width: 46rem; }
 
+/* Pricing */
+.prices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; }
+.prices > div { display: grid; gap: 8px; align-content: start; border-top: 2px solid var(--ink); padding-top: 14px; min-width: 0; }
+.prices .amount { font-stretch: 125%; font-weight: 800; font-size: 2.1rem; line-height: 1.15; }
+.prices .amount small { display: block; margin-top: 4px; font-stretch: 100%; font-weight: 600; font-size: .95rem; line-height: 1.3; color: var(--muted); }
+.prices p:last-child { color: var(--muted); }
+.example { margin-top: 32px; font-size: 1.08rem; }
+.precios .note { margin-top: 8px; }
+
 /* Contact */
 .contact { background: var(--sheet); border-top: 1px solid var(--rule); }
 .contact .split { align-items: start; }
@@ -216,7 +225,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 12px 32px; fl
   .hero .wrap, .band .fiscal, .split { grid-template-columns: minmax(0, 1fr); gap: 40px; }
   .hero .wrap { padding-block: 28px 56px; }
   .roles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .own, .caja-grid { grid-template-columns: minmax(0, 1fr); }
+  .own, .caja-grid, .prices { grid-template-columns: minmax(0, 1fr); }
   .sec { padding-block: 60px; }
 }
 @media (max-width: 560px) {
@@ -237,6 +246,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 12px 32px; fl
       <a href="#viaticos"><span class="es">Viáticos</span><span class="en">Allowances</span></a>
       <a href="#caja-chica"><span class="es">Caja chica</span><span class="en">Petty cash</span></a>
       <a href="#contabilidad"><span class="es">Contabilidad</span><span class="en">Accounting</span></a>
+      <a href="#precios"><span class="es">Precios</span><span class="en">Pricing</span></a>
     </nav>
     <div class="lang" role="group" aria-label="Idioma / Language">
       <button type="button" id="lang-es" aria-pressed="true">ES</button>
@@ -416,6 +426,34 @@ footer .wrap { display: flex; justify-content: space-between; gap: 12px 32px; fl
       <div><h3><span class="es">Español e inglés</span><span class="en">Spanish and English</span></h3><p><span class="es">Cada persona trabaja en su idioma, con inicio de sesión seguro y opción de entrar con Google.</span><span class="en">Each person works in their language, with secure sign-in and a Google option.</span></p></div>
     </div>
     <p class="maker"><span class="es">Viatica es un producto de TXM Global, empresa de tecnología fundada en Saltillo en 2002, con oficinas en Saltillo y Austin. Lo usamos para los viajes de nuestro propio equipo.</span><span class="en">Viatica is built by TXM Global, a technology company founded in Saltillo in 2002, with offices in Saltillo and Austin. We use it for our own team's travel.</span></p>
+  </div>
+</section>
+
+<section class="sec precios" id="precios">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2><span class="es">Precios</span><span class="en">Pricing</span></h2>
+      <p class="lede"><span class="es">Pagas una plataforma mensual y solo por las personas que viajaron en el mes.</span><span class="en">You pay a monthly platform fee, and only for the people who travelled that month.</span></p>
+    </div>
+    <div class="prices">
+      <div>
+        <h3><span class="es">Plataforma</span><span class="en">Platform</span></h3>
+        <p class="amount"><span class="es">$2,950 <small>MXN al mes</small></span><span class="en">$175 <small>USD per month</small></span></p>
+        <p><span class="es">Tu propia instalación, con tu marca.</span><span class="en">Your own deployment, with your brand.</span></p>
+      </div>
+      <div>
+        <h3><span class="es">Por viajero activo</span><span class="en">Per active traveller</span></h3>
+        <p class="amount"><span class="es">$85 <small>MXN al mes</small></span><span class="en">$5 <small>USD per month</small></span></p>
+        <p><span class="es">Solo cuentan quienes tuvieron actividad ese mes.</span><span class="en">Only people active that month count.</span></p>
+      </div>
+      <div>
+        <h3><span class="es">Implementación</span><span class="en">Setup</span></h3>
+        <p class="amount"><span class="es">$16,000 a $35,000 <small>MXN, pago único</small></span><span class="en">$900 to $1,950 <small>USD, one time</small></span></p>
+        <p><span class="es">Según el alcance de la configuración inicial.</span><span class="en">Depending on the scope of the initial configuration.</span></p>
+      </div>
+    </div>
+    <p class="example"><span class="es">Ejemplo: con 20 viajeros activos en el mes, pagas $2,950 + 20 × $85 = <b>$4,650 MXN</b> al mes.</span><span class="en">Example: with 20 active travellers in the month, you pay $175 + 20 × $5 = <b>$275 USD</b> per month.</span></p>
+    <p class="note"><span class="es">Precios en pesos mexicanos, antes de IVA.</span><span class="en">Prices in US dollars, before applicable taxes.</span></p>
   </div>
 </section>
 
