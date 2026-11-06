@@ -23,6 +23,14 @@ jobs:
           install -m 700 -d ~/.ssh
           printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
+          # Format check without revealing the key
+          echo "Key lines: $(wc -l < ~/.ssh/deploy_key)"
+          grep -q -- '-----BEGIN .*PRIVATE KEY-----' ~/.ssh/deploy_key && echo "BEGIN line: found" || echo "BEGIN line: MISSING"
+          grep -q -- '-----END .*PRIVATE KEY-----' ~/.ssh/deploy_key && echo "END line: found" || echo "END line: MISSING"
+          grep -q $'\r' ~/.ssh/deploy_key && echo "Windows line endings: yes" || echo "Windows line endings: no"
+          grep -q 'ENCRYPTED\|Proc-Type' ~/.ssh/deploy_key && echo "Passphrase-protected: yes" || true
+          sed -i 's/\r$//' ~/.ssh/deploy_key
+          ssh-keygen -y -f ~/.ssh/deploy_key > /dev/null && echo "Key readable: yes" || echo "Key readable: NO"
           printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
 
       # Test mode: no --delete, so nothing on the server is removed. Add --delete back
@@ -38,7 +46,7 @@ jobs:
           case "${DEPLOY_PATH%/}" in
             */public_html|"$HOME"|/home/*/) echo "Refusing to deploy to $DEPLOY_PATH: use the domain's own folder"; exit 1 ;;
           esac
-          ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" "mkdir -p '$DEPLOY_PATH' && cd '$DEPLOY_PATH' && pwd && ls -A | head -20"
+          ssh -o IdentitiesOnly=yes -i ~/.ssh/deploy_key -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" "mkdir -p '$DEPLOY_PATH' && cd '$DEPLOY_PATH' && pwd && ls -A | head -20"
           rsync -az --exclude '.well-known' --exclude 'cgi-bin' \
-            -e "ssh -i ~/.ssh/deploy_key -p $SSH_PORT" \
+            -e "ssh -o IdentitiesOnly=yes -i ~/.ssh/deploy_key -p $SSH_PORT" \
             site/ "$SSH_USER@$SSH_HOST:$DEPLOY_PATH/"
