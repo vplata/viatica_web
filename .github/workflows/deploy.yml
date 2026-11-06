@@ -45,8 +45,7 @@ jobs:
           ssh-keygen -y -f ~/.ssh/deploy_key > /dev/null && echo "Key readable: yes" || echo "Key readable: NO"
           printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
 
-      # Test mode: no --delete, so nothing on the server is removed. Add --delete back
-      # once DEPLOY_PATH is confirmed to be the domain's own folder.
+      # --delete mirrors site/ exactly inside the domain's own folder; .well-known (SSL) is kept.
       - name: Upload site
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
@@ -59,6 +58,6 @@ jobs:
             */public_html|"$HOME"|/home/*/) echo "Refusing to deploy to $DEPLOY_PATH: use the domain's own folder"; exit 1 ;;
           esac
           ssh -o IdentitiesOnly=yes -i ~/.ssh/deploy_key -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" "mkdir -p '$DEPLOY_PATH' && cd '$DEPLOY_PATH' && pwd && ls -A | head -20"
-          rsync -az --exclude '.well-known' --exclude 'cgi-bin' \
+          rsync -az --delete --exclude '.well-known' --exclude 'cgi-bin' \
             -e "ssh -o IdentitiesOnly=yes -i ~/.ssh/deploy_key -p $SSH_PORT" \
             site/ "$SSH_USER@$SSH_HOST:$DEPLOY_PATH/"
