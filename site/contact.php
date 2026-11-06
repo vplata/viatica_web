@@ -71,11 +71,14 @@ $headers = [
     'Content-Type' => 'text/plain; charset=UTF-8',
     'Content-Transfer-Encoding' => '8bit',
 ];
-$ok = mail(
-    RECIPIENT,
-    '=?UTF-8?B?' . base64_encode($subject) . '?=',
-    $body,
-    $headers,
-    '-f' . SENDER
-);
-$ok ? reply(200, 'sent') : reply(500, 'mail');
+$encSubject = '=?UTF-8?B?' . base64_encode($subject) . '?=';
+$ok = @mail(RECIPIENT, $encSubject, $body, $headers, '-f' . SENDER);
+if (!$ok) {
+    // Some hosts reject the envelope-sender parameter; retry without it.
+    $ok = @mail(RECIPIENT, $encSubject, $body, $headers);
+}
+if ($ok) reply(200, 'sent');
+$err = error_get_last();
+http_response_code(500);
+echo json_encode(['status' => 'mail', 'detail' => $err ? mb_substr($err['message'], 0, 200) : 'mail() returned false']);
+exit;
