@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>Viatica</title>
-<meta name="description" content="Viatica: órdenes de viaje, anticipos, gastos, CFDI y viáticos en un solo lugar.">
+<meta name="description" content="Viatica: órdenes de viaje, anticipos, gastos, CFDI, viáticos y caja chica en un solo lugar.">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -13,7 +13,7 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://viatica.pro/">
 <meta property="og:title" content="Viatica">
-<meta property="og:description" content="Órdenes de viaje, anticipos, gastos, CFDI y viáticos en un solo lugar.">
+<meta property="og:description" content="Órdenes de viaje, anticipos, gastos, CFDI, viáticos y caja chica en un solo lugar.">
 <meta property="og:image" content="https://viatica.pro/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -37,20 +37,21 @@
   --ok: #0B7050;
   --pending: #8F5200;
   --guilloche: #6FA3A3;
+  --teal: #0C6B60;
   --font: "Archivo", "Helvetica Neue", Arial, sans-serif;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --paper: #102C33; --sheet: #17393F; --ink: #E7F2F0; --muted: #A9C2C3; --rule: #31575D;
     --band: #0C6B60; --band-fg: #FFFFFF; --band-muted: #D3EBE6; --band-rule: #3D8C81;
-    --stamp: #FF86B6; --ok: #5AD8A8; --pending: #F4BC63; --guilloche: #3F7479;
+    --stamp: #FF86B6; --teal: #6FD3C0; --ok: #5AD8A8; --pending: #F4BC63; --guilloche: #3F7479;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --paper: #102C33; --sheet: #17393F; --ink: #E7F2F0; --muted: #A9C2C3; --rule: #31575D;
   --band: #0C6B60; --band-fg: #FFFFFF; --band-muted: #D3EBE6; --band-rule: #3D8C81;
-  --stamp: #FF86B6; --ok: #5AD8A8; --pending: #F4BC63; --guilloche: #3F7479;
+  --stamp: #FF86B6; --teal: #6FD3C0; --ok: #5AD8A8; --pending: #F4BC63; --guilloche: #3F7479;
   color-scheme: dark;
 }
 
@@ -165,6 +166,17 @@ a { color: inherit; }
 .roles > div { display: grid; gap: 8px; align-content: start; border-top: 2px solid var(--ink); padding-top: 14px; min-width: 0; }
 .roles p { color: var(--muted); font-size: .98rem; }
 
+/* Petty cash */
+.caja { background: var(--sheet); border-block: 1px solid var(--rule); }
+.caja-grid { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); gap: 56px; align-items: start; }
+.flow { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 32px; counter-reset: c; }
+.flow li { counter-increment: c; display: grid; align-content: start; grid-template-columns: 2.2rem minmax(0, 1fr); gap: 4px 12px; padding-block: 16px; border-top: 1px solid var(--rule); }
+.flow li::before { content: counter(c); grid-row: span 2; font-stretch: 125%; font-weight: 800; font-size: 1.5rem; line-height: 1.1; color: var(--teal); }
+.flow p { color: var(--muted); font-size: .98rem; }
+.formula { background: var(--paper); border: 1px solid var(--rule); padding: 28px; display: grid; gap: 16px; }
+.formula .eq { font-stretch: 125%; font-weight: 800; font-size: 1.35rem; line-height: 1.25; }
+.formula .bullets { margin-top: 0; font-size: .96rem; }
+
 /* Accounting table */
 .tbl { overflow-x: auto; background: var(--sheet); border: 1px solid var(--rule); }
 table { width: 100%; border-collapse: collapse; min-width: 520px; font-size: .95rem; }
@@ -204,12 +216,12 @@ footer .wrap { display: flex; justify-content: space-between; gap: 12px 32px; fl
   .hero .wrap, .band .fiscal, .split { grid-template-columns: minmax(0, 1fr); gap: 40px; }
   .hero .wrap { padding-block: 28px 56px; }
   .roles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .own { grid-template-columns: minmax(0, 1fr); }
+  .own, .caja-grid { grid-template-columns: minmax(0, 1fr); }
   .sec { padding-block: 60px; }
 }
 @media (max-width: 560px) {
   .top nav, .top .wrap > .btn { display: none; }
-  .roles, form { grid-template-columns: minmax(0, 1fr); }
+  .roles, form, .flow { grid-template-columns: minmax(0, 1fr); }
   .report { padding: 20px 16px; box-shadow: 6px 6px 0 color-mix(in srgb, var(--band) 16%, transparent); }
   .stamp { width: 84px; height: 84px; top: 112px; right: 30%; }
 }
@@ -223,6 +235,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 12px 32px; fl
     <nav>
       <a href="#fiscal"><span class="es">CFDI</span><span class="en">CFDI</span></a>
       <a href="#viaticos"><span class="es">Viáticos</span><span class="en">Allowances</span></a>
+      <a href="#caja-chica"><span class="es">Caja chica</span><span class="en">Petty cash</span></a>
       <a href="#contabilidad"><span class="es">Contabilidad</span><span class="en">Accounting</span></a>
     </nav>
     <div class="lang" role="group" aria-label="Idioma / Language">
@@ -239,7 +252,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 12px 32px; fl
   <div class="wrap">
     <div class="hero-copy">
       <h1><span class="es">Cada viaje de trabajo, cuadrado hasta el último peso.</span><span class="en">Every business trip, reconciled to the last cent.</span></h1>
-      <p class="lede"><span class="es">Viatica reúne la orden de viaje, el anticipo, los gastos y los CFDI en un solo lugar, y cierra cada viaje con su saldo.</span><span class="en">Viatica keeps the travel order, the advance, the expenses and the CFDI invoices in one place, then closes each trip with its final balance.</span></p>
+      <p class="lede"><span class="es">Viatica reúne la orden de viaje, el anticipo, los gastos y los CFDI en un solo lugar, y cierra cada viaje con su saldo. También lleva la caja chica, con arqueos y reposición.</span><span class="en">Viatica keeps the travel order, the advance, the expenses and the CFDI invoices in one place, then closes each trip with its final balance. It also runs petty cash, with cash counts and replenishment.</span></p>
       <a class="btn" href="#contacto"><span class="es">Solicitar demo</span><span class="en">Request a demo</span></a>
     </div>
 
@@ -321,7 +334,36 @@ footer .wrap { display: flex; justify-content: space-between; gap: 12px 32px; fl
   </div>
 </section>
 
-<section class="sec" style="padding-top:0">
+<section class="sec caja" id="caja-chica">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2><span class="es">Caja chica con fondo fijo, sin saldos corregidos a mano</span><span class="en">Petty cash on a fixed fund, with no balances fixed by hand</span></h2>
+      <p class="lede"><span class="es">El responsable de la caja captura cada gasto como un viajero: con foto del comprobante, beneficiario y el mismo seguimiento al CFDI. Viatica lleva el saldo, los arqueos y la reposición.</span><span class="en">The cash custodian logs each expense the way a traveller does: with a receipt photo, a payee and the same CFDI follow-up. Viatica keeps the balance, the cash counts and the replenishment.</span></p>
+    </div>
+    <div class="caja-grid">
+      <ol class="flow">
+        <li><h3><span class="es">Se abre el período</span><span class="en">Open the period</span></h3><p><span class="es">El primero arranca con el fondo fijo. Después, el efectivo inicial lo calcula Viatica; nadie lo teclea.</span><span class="en">The first starts with the fixed fund. After that, Viatica calculates the opening cash; nobody types it in.</span></p></li>
+        <li><h3><span class="es">Se gasta</span><span class="en">Spend</span></h3><p><span class="es">Cada gasto lleva comprobante, beneficiario y el rastro de ticket a CFDI.</span><span class="en">Each expense carries a receipt, a payee and the ticket-to-CFDI trail.</span></p></li>
+        <li><h3><span class="es">Se recarga</span><span class="en">Top up</span></h3><p><span class="es">Cualquier día y por cualquier monto, indicando si el dinero salió de la empresa o del responsable.</span><span class="en">Any day, any amount, recording whether the money came from the company or the custodian.</span></p></li>
+        <li><h3><span class="es">Se arquea</span><span class="en">Count the cash</span></h3><p><span class="es">Cuenta el efectivo cuando quieras. Toda diferencia exige explicación y, si falta dinero, quién la absorbe. El jefe se entera el mismo día.</span><span class="en">Count whenever you like. Every difference needs an explanation and, if cash is short, who absorbs it. The manager hears the same day.</span></p></li>
+        <li><h3><span class="es">Se corta</span><span class="en">Close</span></h3><p><span class="es">El responsable cierra con el efectivo contado y Viatica calcula la reposición.</span><span class="en">The custodian closes with the counted cash and Viatica calculates the replenishment.</span></p></li>
+        <li><h3><span class="es">El jefe firma</span><span class="en">Manager signs off</span></h3><p><span class="es">Aprueba o devuelve el corte. Uno devuelto se reabre para corregir el conteo; los gastos se quedan.</span><span class="en">Approves or returns the close. A returned close reopens to fix the count; the expenses stay.</span></p></li>
+      </ol>
+      <div class="formula">
+        <p class="note"><span class="es">Reposición al cortar</span><span class="en">Replenishment at close</span></p>
+        <p class="eq"><span class="es">Lo gastado − lo que la empresa ya repuso en el período</span><span class="en">Amount spent − what the company already topped up in the period</span></p>
+        <ul class="bullets">
+          <li><span class="es">Si la empresa absorbe un faltante, se suma.</span><span class="en">If the company absorbs a shortage, it is added.</span></li>
+          <li><span class="es">Si lo absorbe el responsable, queda como adeudo hasta que entregue el efectivo.</span><span class="en">If the custodian absorbs it, it stays owed until the cash is handed in.</span></li>
+          <li><span class="es">El efectivo que pone el responsable cuenta en el arqueo, pero no reduce lo que la empresa repone.</span><span class="en">Cash the custodian puts in counts at the cash count, but does not reduce what the company replenishes.</span></li>
+        </ul>
+        <p><b><span class="es">Una caja que cuadra vuelve exactamente a su fondo fijo.</span><span class="en">A box that balances returns exactly to its fixed fund.</span></b></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec">
   <div class="wrap">
     <div class="sec-head">
       <h2><span class="es">Una sola herramienta para quienes viajan y quienes cierran</span><span class="en">One tool for the people who travel and the people who close the books</span></h2>
