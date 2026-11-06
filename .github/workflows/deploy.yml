@@ -32,7 +32,7 @@ jobs:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_PORT: ${{ secrets.SSH_PORT }}
           SSH_USER: ${{ secrets.SSH_USER }}
-          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          DEPLOY_PATH: /home3/easyclou/public_html/viatica_web
         run: |
           test -n "$DEPLOY_PATH"
           case "${DEPLOY_PATH%/}" in
