@@ -78,7 +78,4 @@ if (!$ok) {
     $ok = @mail(RECIPIENT, $encSubject, $body, $headers);
 }
 if ($ok) reply(200, 'sent');
-$err = error_get_last();
-http_response_code(500);
-echo json_encode(['status' => 'mail', 'detail' => $err ? mb_substr($err['message'], 0, 200) : 'mail() returned false']);
-exit;
+reply(500, 'mail');

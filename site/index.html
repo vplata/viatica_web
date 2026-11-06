@@ -449,10 +449,10 @@ footer .wrap { display: flex; justify-content: space-between; gap: 12px 32px; fl
       .then(function (r) {
         if (r.status === 429) { status.textContent = m.rate; return; }
         if (r.status === 422) { status.textContent = m.invalid; return; }
-        if (!r.ok) { status.textContent = m.fail + ' (' + r.status + ')'; return; }
+        if (!r.ok) throw new Error();
         status.textContent = m.sent; form.reset();
       })
-      .catch(function () { status.textContent = m.fail + ' (red)'; })
+      .catch(function () { status.textContent = m.fail; })
       .then(function () { btn.disabled = false; });
   });
 
