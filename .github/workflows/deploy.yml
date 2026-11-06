@@ -11,8 +11,6 @@ concurrency:
 
 jobs:
   deploy:
-    # Stays off until the repository variable DEPLOY_ENABLED is set to "true".
-    if: vars.DEPLOY_ENABLED == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
