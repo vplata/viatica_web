@@ -148,6 +148,20 @@ a { color: inherit; }
 .checks li { padding-block: 10px; border-top: 1px solid var(--band-rule); }
 .checks strong { display: block; }
 
+/* Mobile app */
+.app-split { align-items: center; }
+.soon { display: inline-block; justify-self: start; background: var(--band); color: var(--band-fg); font-weight: 600; font-size: .95rem; padding: .55em .9em; border-radius: 3px; margin-top: 8px; }
+.phone { justify-self: center; display: grid; gap: 10px; justify-items: center; }
+.screen { width: min(300px, 100%); aspect-ratio: 9 / 16; background: var(--sheet); border: 10px solid var(--ink); border-radius: 36px; padding: 28px 18px 18px; display: flex; flex-direction: column; gap: 14px; }
+.screen-title { font-stretch: 125%; font-weight: 800; font-size: 1.2rem; }
+.screen dl { display: grid; }
+.screen dl > div { display: flex; justify-content: space-between; gap: 12px; padding-block: 8px; border-bottom: 1px solid var(--rule); font-size: .9rem; }
+.screen dt { color: var(--muted); }
+.screen dd { font-weight: 600; }
+.receipt { border: 2px dashed var(--rule); border-radius: 8px; padding: 18px 10px; text-align: center; font-size: .85rem; color: var(--muted); }
+.chip { align-self: start; font-size: .8rem; font-weight: 600; color: var(--pending); border: 1px solid currentColor; border-radius: 99px; padding: .2em .7em; }
+.save { margin-top: auto; text-align: center; background: var(--stamp); color: var(--paper); font-weight: 700; border-radius: 6px; padding: .6em; font-size: .95rem; }
+
 /* Allowance */
 .split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 64px; align-items: start; }
 .split .sec-head { margin-bottom: 0; }
@@ -244,6 +258,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 12px 32px; fl
     <a class="mark" href="#inicio"><svg viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" fill="#0C6B60"/><path d="M86 155 155 117 256 293 357 117 426 155 256 456Z" fill="#fff"/></svg>Viatica</a>
     <nav>
       <a href="#fiscal"><span class="es">CFDI</span><span class="en">CFDI</span></a>
+      <a href="#app"><span class="es">App</span><span class="en">App</span></a>
       <a href="#viaticos"><span class="es">Viáticos</span><span class="en">Allowances</span></a>
       <a href="#caja-chica"><span class="es">Caja chica</span><span class="en">Petty cash</span></a>
       <a href="#contabilidad"><span class="es">Contabilidad</span><span class="en">Accounting</span></a>
@@ -321,6 +336,38 @@ footer .wrap { display: flex; justify-content: space-between; gap: 12px 32px; fl
   </div>
 </section>
 
+<section class="sec app" id="app">
+  <div class="wrap split app-split">
+    <div class="sec-head">
+      <h2><span class="es">App para iOS y Android</span><span class="en">iOS and Android app</span></h2>
+      <p class="lede"><span class="es">El viajero registra cada gasto en el momento, con foto del comprobante, desde donde esté.</span><span class="en">Travellers log each expense on the spot, with a photo of the receipt, wherever they are.</span></p>
+      <ul class="bullets">
+        <li><span class="es">Captura el gasto y la foto del ticket al pagar.</span><span class="en">Capture the expense and the ticket photo when paying.</span></li>
+        <li><span class="es">Consulta su orden de viaje y su anticipo.</span><span class="en">See their travel order and advance.</span></li>
+        <li><span class="es">Tiene a la mano los datos fiscales de la empresa para pedir la factura.</span><span class="en">Has the company's tax details on hand to request the invoice.</span></li>
+        <li><span class="es">Recibe avisos antes de la fecha límite del reporte.</span><span class="en">Gets reminders before the report deadline.</span></li>
+        <li><span class="es">Entra con su cuenta de Google o con usuario y contraseña.</span><span class="en">Signs in with Google or with a username and password.</span></li>
+      </ul>
+      <p class="soon"><span class="es">Próximamente en App Store y Google Play. Mientras tanto, todo funciona desde el navegador del celular.</span><span class="en">Coming soon to the App Store and Google Play. Until then, everything works in the phone's browser.</span></p>
+    </div>
+    <figure class="phone" aria-label="Pantalla de ejemplo: captura de un gasto">
+      <div class="screen">
+        <p class="screen-title"><span class="es">Nuevo gasto</span><span class="en">New expense</span></p>
+        <dl>
+          <div><dt><span class="es">Orden</span><span class="en">Order</span></dt><dd>OV-0142</dd></div>
+          <div><dt><span class="es">Tipo</span><span class="en">Type</span></dt><dd>Taxis</dd></div>
+          <div><dt><span class="es">Importe</span><span class="en">Amount</span></dt><dd>$640.00 MXN</dd></div>
+          <div><dt><span class="es">Pago</span><span class="en">Paid with</span></dt><dd><span class="es">Efectivo</span><span class="en">Cash</span></dd></div>
+        </dl>
+        <div class="receipt"><span class="es">Foto del comprobante adjunta</span><span class="en">Receipt photo attached</span></div>
+        <p class="chip"><span class="es">Ticket, CFDI pendiente</span><span class="en">Ticket, CFDI pending</span></p>
+        <p class="save"><span class="es">Guardar gasto</span><span class="en">Save expense</span></p>
+      </div>
+      <figcaption class="note"><span class="es">Pantalla de ejemplo</span><span class="en">Sample screen</span></figcaption>
+    </figure>
+  </div>
+</section>
+
 <section class="sec" id="viaticos">
   <div class="wrap split">
     <div class="sec-head">
@@ -380,7 +427,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 12px 32px; fl
       <h2><span class="es">Una sola herramienta para quienes viajan y quienes cierran</span><span class="en">One tool for the people who travel and the people who close the books</span></h2>
     </div>
     <div class="roles">
-      <div><h3><span class="es">Viajeros</span><span class="en">Travellers</span></h3><p><span class="es">Consultan su orden, registran gastos desde el navegador del celular, y reciben avisos antes de la fecha límite. La app para iOS y Android llega pronto a las tiendas.</span><span class="en">See their order, log expenses from their phone's browser, and get reminders before the deadline. The iOS and Android app is coming soon to the stores.</span></p></div>
+      <div><h3><span class="es">Viajeros</span><span class="en">Travellers</span></h3><p><span class="es">Consultan su orden, registran gastos en la app para iOS y Android o en el navegador, y reciben avisos antes de la fecha límite.</span><span class="en">See their order, log expenses in the iOS and Android app or the browser, and get reminders before the deadline.</span></p></div>
       <div><h3><span class="es">Gerentes</span><span class="en">Managers</span></h3><p><span class="es">Aprueban las órdenes de su equipo y pueden deshacer su aprobación mientras el viaje no haya comenzado.</span><span class="en">Approve their team's orders and can undo an approval until the trip has started.</span></p></div>
       <div><h3><span class="es">Administración</span><span class="en">Administration</span></h3><p><span class="es">Crea órdenes, aplica reglas a los anticipos y define el plazo de entrega. Los reportes vencidos se cierran solos, y administración puede reabrirlos.</span><span class="en">Creates orders, applies advance rules and sets the deadline. Overdue reports close automatically, and administration can reopen them.</span></p></div>
       <div><h3><span class="es">Contabilidad</span><span class="en">Accounting</span></h3><p><span class="es">Revisa el reporte de IVA, la conciliación de anticipos y los gastos por centro de costo, proyecto y empleado.</span><span class="en">Reviews the VAT report, advance reconciliation, and spend by cost centre, project and employee.</span></p></div>
