@@ -152,6 +152,10 @@ a { color: inherit; }
 .checks strong { display: block; }
 
 /* Mobile app */
+.stores { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
+.store { display: inline-block; background: var(--action); color: #FFFFFF; font-weight: 700; text-decoration: none; padding: .65em 1.1em; border-radius: 6px; }
+a.store:hover { background: var(--action-hover); }
+.store-plain { background: transparent; color: var(--ink); border: 1px solid var(--rule); font-weight: 600; }
 .app-split { align-items: center; }
 .soon { display: inline-block; justify-self: start; background: var(--band); color: var(--band-fg); font-weight: 600; font-size: .95rem; padding: .55em .9em; border-radius: 3px; margin-top: 8px; }
 .phone { justify-self: center; display: grid; gap: 10px; justify-items: center; }
@@ -351,7 +355,10 @@ footer .wrap { display: flex; justify-content: space-between; gap: 12px 32px; fl
         <li><span class="es">Recibe avisos antes de la fecha límite del reporte.</span><span class="en">Gets reminders before the report deadline.</span></li>
         <li><span class="es">Entra con su cuenta de Google o con usuario y contraseña.</span><span class="en">Signs in with Google or with a username and password.</span></li>
       </ul>
-      <p class="soon"><span class="es">Android: disponible en Google Play. iPhone: próximamente en App Store; mientras tanto, funciona desde el navegador.</span><span class="en">Android: available on Google Play. iPhone: coming soon to the App Store; until then, it works in the browser.</span></p>
+      <div class="stores">
+        <a class="store" href="https://apps.apple.com/mx/app/id6813677527" target="_blank" rel="noopener"><span class="es">Descargar en App Store</span><span class="en">Download on the App Store</span></a>
+        <span class="store store-plain"><span class="es">Android: disponible en Google Play</span><span class="en">Android: available on Google Play</span></span>
+      </div>
     </div>
     <figure class="phone" aria-label="Pantalla de ejemplo: captura de un gasto">
       <div class="screen">
